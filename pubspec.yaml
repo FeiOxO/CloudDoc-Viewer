@@ -1,0 +1,46 @@
+name: cloud_doc_viewer
+description: 多云服务器 Markdown 文档阅读器
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.2.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  
+  # HTTP 请求
+  http: ^1.2.1
+  
+  # Markdown 渲染
+  flutter_markdown: ^0.7.1
+  # 代码高亮
+  flutter_highlight: ^0.7.0
+  
+  # 本地存储（服务器配置、登录状态）
+  shared_preferences: ^2.3.3
+  
+  # 加密存储密码
+  flutter_secure_storage: ^9.2.2
+  
+  # 图标
+  font_awesome_flutter: ^10.7.0
+  
+  # 加载动画
+  shimmer: ^3.0.0
+  
+  # Toast 提示
+  fluttertoast: ^8.2.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  
+  # UUID 生成
+  uuid: ^4.4.0
+
+flutter:
+  uses-material-design: true
