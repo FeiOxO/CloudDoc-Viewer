@@ -104,9 +104,9 @@ class OpenListApi {
       if (data['code'] == 200) {
         var rawUrl = data['data']['raw_url'] as String?;
         if (rawUrl != null && rawUrl.isNotEmpty) {
-          // raw_url 可能是完整 URL（http://127.0.0.1/path?sign=xxx）
-          // 也可能是相对路径（/d/path?sign=xxx）
-          // 需要将 127.0.0.1 替换为用户配置的实际服务器地址
+          // 替换 /p/ 为 /d/ 以获取原始文件内容（而非预览包装）
+          rawUrl = rawUrl.replaceFirst('/p/', '/d/');
+          // raw_url 可能是完整 URL 也可能是相对路径
           if (rawUrl.startsWith('http://127.0.0.1:${_server!.port}')) {
             rawUrl = rawUrl.replaceFirst(
               'http://127.0.0.1:${_server!.port}',
