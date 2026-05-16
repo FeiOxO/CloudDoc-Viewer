@@ -102,9 +102,25 @@ class OpenListApi {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['code'] == 200) {
-        final rawUrl = data['data']['raw_url'] as String?;
+        var rawUrl = data['data']['raw_url'] as String?;
         if (rawUrl != null && rawUrl.isNotEmpty) {
-          return '${_server!.baseUrl}$rawUrl';
+          // raw_url 可能是完整 URL（http://127.0.0.1/path?sign=xxx）
+          // 也可能是相对路径（/d/path?sign=xxx）
+          // 需要将 127.0.0.1 替换为用户配置的实际服务器地址
+          if (rawUrl.startsWith('http://127.0.0.1:${_server!.port}')) {
+            rawUrl = rawUrl.replaceFirst(
+              'http://127.0.0.1:${_server!.port}',
+              'http://${_server!.host}:${_server!.port}',
+            );
+          } else if (rawUrl.startsWith('http://localhost:${_server!.port}')) {
+            rawUrl = rawUrl.replaceFirst(
+              'http://localhost:${_server!.port}',
+              'http://${_server!.host}:${_server!.port}',
+            );
+          } else if (!rawUrl.startsWith('http')) {
+            rawUrl = '${_server!.baseUrl}$rawUrl';
+          }
+          return rawUrl;
         }
       }
     }
