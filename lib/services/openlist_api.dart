@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import '../models/file_entry.dart';
 import '../models/server_config.dart';
 
-/// Alist REST API 客户端
-class AlistApi {
+/// OpenList REST API 客户端
+class OpenListApi {
   String? _token;
   ServerConfig? _server;
 
-  AlistApi();
+  OpenListApi();
 
   bool get isLoggedIn => _token != null && _token!.isNotEmpty;
 

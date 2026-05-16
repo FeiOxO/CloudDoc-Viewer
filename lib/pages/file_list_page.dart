@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../models/file_entry.dart';
-import '../services/alist_api.dart';
+import '../services/openlist_api.dart';
 import 'markdown_viewer_page.dart';
 
 /// 文件浏览页面
 class FileListPage extends StatefulWidget {
-  final AlistApi alistApi;
+  final OpenListApi openListApi;
 
-  const FileListPage({super.key, required this.alistApi});
+  const FileListPage({super.key, required this.openListApi});
 
   @override
   State<FileListPage> createState() => _FileListPageState();
@@ -35,7 +35,7 @@ class _FileListPageState extends State<FileListPage> {
     });
 
     try {
-      final files = await widget.alistApi.listFiles(path);
+      final files = await widget.openListApi.listFiles(path);
       // 排序：目录在前，文件在后
       files.sort((a, b) {
         if (a.isDir && !b.isDir) return -1;
@@ -74,7 +74,7 @@ class _FileListPageState extends State<FileListPage> {
   void _openFile(FileEntry entry) async {
     if (entry.isMarkdown) {
       try {
-        final content = await widget.alistApi.getFileContent(entry.path);
+        final content = await widget.openListApi.getFileContent(entry.path);
         if (mounted) {
           Navigator.push(
             context,
@@ -82,7 +82,7 @@ class _FileListPageState extends State<FileListPage> {
               builder: (_) => MarkdownViewerPage(
                 title: entry.name,
                 content: content,
-                alistApi: widget.alistApi,
+                openListApi: widget.openListApi,
                 basePath: _currentPath,
               ),
             ),

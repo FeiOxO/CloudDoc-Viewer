@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/server_config.dart';
-import '../services/alist_api.dart';
+import '../services/openlist_api.dart';
 import '../services/server_manager.dart';
 import 'server_detail_page.dart';
 
@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _passwordCtrl = TextEditingController();
-  final _alistApi = AlistApi();
+  final _openListApi = OpenListApi();
   final _manager = ServerManager();
   bool _logging = false;
   String? _error;
@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     final server = widget.server.copyWith(password: _passwordCtrl.text);
     await _manager.updateServer(server);
 
-    final success = await _alistApi.login(server);
+    final success = await _openListApi.login(server);
     await _manager.setLastServerId(server.id);
 
     if (!mounted) return;
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(
           builder: (_) => ServerDetailPage(
             server: server,
-            alistApi: _alistApi,
+            openListApi: _openListApi,
           ),
         ),
       );
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: _passwordCtrl,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: 'Alist 密码',
+                labelText: 'OpenList 密码',
                 prefixIcon: const Icon(Icons.lock_outline),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

@@ -1,20 +1,20 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import '../services/alist_api.dart';
+import '../services/openlist_api.dart';
 
 /// Markdown 文件阅读器
 class MarkdownViewerPage extends StatefulWidget {
   final String title;
   final String content;
-  final AlistApi alistApi;
+  final OpenListApi openListApi;
   final String? basePath;
 
   const MarkdownViewerPage({
     super.key,
     required this.title,
     required this.content,
-    required this.alistApi,
+    required this.openListApi,
     this.basePath,
   });
 
@@ -149,9 +149,9 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
             final fullPath = src.startsWith('http')
                 ? src
                 : '${widget.basePath ?? ''}/$src';
-            // 尝试通过 Alist API 获取图片
+            // 尝试通过 OpenList API 获取图片
             return FutureBuilder<List<int>>(
-              future: widget.alistApi.getImageBytes(fullPath),
+              future: widget.openListApi.getImageBytes(fullPath),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Padding(

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/server_config.dart';
 import '../models/server_status.dart';
-import '../services/alist_api.dart';
+import '../services/openlist_api.dart';
 import '../services/status_api.dart';
 import 'file_list_page.dart';
 
 /// 服务器详情页（状态 + 文件浏览 Tab）
 class ServerDetailPage extends StatefulWidget {
   final ServerConfig server;
-  final AlistApi alistApi;
+  final OpenListApi openListApi;
 
   const ServerDetailPage({
     super.key,
     required this.server,
-    required this.alistApi,
+    required this.openListApi,
   });
 
   @override
@@ -89,7 +89,7 @@ class _ServerDetailPageState extends State<ServerDetailPage>
         controller: _tabController,
         children: [
           _buildStatusTab(),
-          FileListPage(alistApi: widget.alistApi),
+          FileListPage(openListApi: widget.openListApi),
         ],
       ),
     );

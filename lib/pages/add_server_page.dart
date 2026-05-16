@@ -124,7 +124,7 @@ class _AddServerPageState extends State<AddServerPage> {
                 Expanded(
                   child: TextFormField(
                     controller: _portCtrl,
-                    decoration: _inputDec('Alist 端口'),
+                    decoration: _inputDec('OpenList 端口'),
                     keyboardType: TextInputType.number,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return '必填';
@@ -154,7 +154,7 @@ class _AddServerPageState extends State<AddServerPage> {
             const SizedBox(height: 24),
 
             // ── 登录信息 ──
-            _sectionTitle('Alist 登录信息'),
+            _sectionTitle('OpenList 登录信息'),
             const SizedBox(height: 8),
             TextFormField(
               controller: _usernameCtrl,

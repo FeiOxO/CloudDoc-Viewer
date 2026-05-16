@@ -3,10 +3,10 @@ class ServerConfig {
   String id; // 唯一标识（UUID）
   String name; // 显示名称（如"阿里云"）
   String host; // IP 或域名
-  int port; // Alist 端口
+  int port; // OpenList 端口
   int statusPort; // 状态 API 端口
-  String username; // Alist 用户名
-  String password; // Alist 密码
+  String username; // OpenList 用户名
+  String password; // OpenList 密码
   String? note; // 备注
   bool enableStatus; // 是否启用状态监控
   DateTime createdAt;

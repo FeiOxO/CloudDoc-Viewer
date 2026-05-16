@@ -1,4 +1,4 @@
-/// Alist 文件条目数据模型
+/// OpenList 文件条目数据模型
 class FileEntry {
   final String name;
   final String path;
