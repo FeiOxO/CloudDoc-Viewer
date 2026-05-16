@@ -14,11 +14,6 @@ dependencies:
   # HTTP 请求
   http: ^1.2.1
   
-  # Markdown 渲染
-  flutter_markdown: ^0.7.1
-  # 代码高亮
-  flutter_highlight: ^0.7.0
-  
   # 本地存储（服务器配置、登录状态）
   shared_preferences: ^2.3.3
   
@@ -36,6 +31,7 @@ dependencies:
 
   # UUID 生成
   uuid: ^4.4.0
+  flutter_widget_from_html: ^0.16.1
 
 dev_dependencies:
   flutter_test:

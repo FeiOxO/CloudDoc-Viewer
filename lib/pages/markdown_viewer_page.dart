@@ -1,9 +1,9 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../services/openlist_api.dart';
 
-/// Markdown 文件阅读器
+/// Markdown 文件阅读器（使用 HTML 渲染引擎）
+/// 支持标准 HTML / Markdown 混合内容
 class MarkdownViewerPage extends StatefulWidget {
   final String title;
   final String content;
@@ -34,6 +34,10 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = _darkMode;
+    final textColor = isDark ? Colors.grey[300]! : Colors.black87;
+    final bgColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -44,157 +48,187 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(_darkMode ? Icons.light_mode : Icons.dark_mode),
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => setState(() => _darkMode = !_darkMode),
             tooltip: '切换主题',
           ),
           IconButton(
             icon: const Icon(Icons.content_copy),
-            onPressed: () => _copyContent(),
+            onPressed: _copyContent,
             tooltip: '复制全文',
-          ),
-          PopupMenuButton<String>(
-            onSelected: (v) {
-              if (v == 'font_small') _changeFontSize(-2);
-              if (v == 'font_large') _changeFontSize(2);
-            },
-            itemBuilder: (_) => [
-              const PopupMenuItem(
-                value: 'font_small',
-                child: ListTile(
-                  leading: Icon(Icons.text_decrease, size: 20),
-                  title: Text('缩小字体'),
-                  dense: true,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'font_large',
-                child: ListTile(
-                  leading: Icon(Icons.text_increase, size: 20),
-                  title: Text('放大字体'),
-                  dense: true,
-                ),
-              ),
-            ],
           ),
         ],
       ),
       body: Container(
-        color: _darkMode ? const Color(0xFF1E1E2E) : Colors.white,
-        child: Markdown(
-          data: _content,
-          selectable: true,
-          styleSheet: MarkdownStyleSheet(
-            h1: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: _darkMode ? Colors.white : Colors.black87,
-            ),
-            h2: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: _darkMode ? Colors.white : Colors.black87,
-            ),
-            h3: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              color: _darkMode ? Colors.white : Colors.black87,
-            ),
-            p: TextStyle(
+        color: bgColor,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: HtmlWidget(
+            _content,
+            textStyle: TextStyle(
               fontSize: 15,
-              color: _darkMode ? Colors.grey[300] : Colors.black87,
+              color: textColor,
               height: 1.6,
             ),
-            code: TextStyle(
-              fontSize: 13,
-              backgroundColor: _darkMode
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.grey[200],
-              color: _darkMode ? Colors.green[200] : Colors.deepOrange,
-            ),
-            codeblockDecoration: BoxDecoration(
-              color: _darkMode
-                  ? const Color(0xFF2D2D3F)
-                  : Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            blockquoteDecoration: BoxDecoration(
-              border: const Border(
-                left: BorderSide(
-                  color: Colors.blue,
-                  width: 4,
-                ),
-              ),
-              color: _darkMode
-                  ? Colors.blue.withValues(alpha: 0.1)
-                  : Colors.blue.withValues(alpha: 0.05),
-            ),
-            listBullet: TextStyle(
-              color: _darkMode ? Colors.white : Colors.black87,
-            ),
-            horizontalRuleDecoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: _darkMode ? Colors.grey[700]! : Colors.grey[300]!,
-                  width: 1,
-                ),
-              ),
-            ),
+            customStylesBuilder: (element) {
+              return _buildElementStyles(element, isDark);
+            },
+            onTapUrl: (url) async {
+              // 可以添加链接处理逻辑
+              return false;
+            },
           ),
-          padding: const EdgeInsets.all(16),
-          // 支持图片加载
-          sizedImageBuilder: (config) {
-            final src = config.uri.toString();
-            // 如果是相对路径，拼接 basePath
-            final fullPath = src.startsWith('http')
-                ? src
-                : '${widget.basePath ?? ''}/$src';
-            // 尝试通过 OpenList API 获取图片
-            return FutureBuilder<List<int>>(
-              future: widget.openListApi.getImageBytes(fullPath),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Image.memory(
-                      Uint8ListFromList(snapshot.data!),
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.broken_image,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  );
-                }
-                return const Icon(
-                  Icons.broken_image,
-                  size: 48,
-                  color: Colors.grey,
-                );
-              },
-            );
-          },
         ),
       ),
     );
   }
 
-  void _copyContent() {
-    // 复制到剪贴板
+  Map<String, String>? _buildElementStyles(element, bool isDark) {
+    final tag = element.localName;
+
+    switch (tag) {
+      case 'h1':
+        return {
+          'font-size': '24px',
+          'font-weight': 'bold',
+          'color': isDark ? '#FFFFFF' : '#000000',
+          'margin': '20px 0 10px 0',
+          'padding': '0',
+        };
+      case 'h2':
+        return {
+          'font-size': '20px',
+          'font-weight': 'bold',
+          'color': isDark ? '#FFFFFF' : '#000000',
+          'margin': '18px 0 8px 0',
+          'padding': '0 0 4px 0',
+          'border-bottom': isDark ? '1px solid #424242' : '1px solid #E0E0E0',
+        };
+      case 'h3':
+        return {
+          'font-size': '17px',
+          'font-weight': 'bold',
+          'color': isDark ? '#FFFFFF' : '#000000',
+          'margin': '14px 0 6px 0',
+          'padding': '0',
+        };
+
+      // ——— 代码块 ———
+      case 'pre':
+        return {
+          'background-color': isDark ? '#2D2D3F' : '#F5F5F5',
+          'padding': '12px',
+          'border-radius': '8px',
+          'overflow-x': 'auto',
+          'margin': '8px 0',
+        };
+      case 'code':
+        // 内联代码（不在 <pre> 里）
+        if (element.parent?.localName != 'pre') {
+          return {
+            'font-size': '13px',
+            'background-color': isDark ? '#2D2D3F' : '#EEEEEE',
+            'color': isDark ? '#A5D6A7' : '#E65100',
+            'padding': '2px 6px',
+            'border-radius': '4px',
+            'font-family': 'monospace',
+          };
+        }
+        // <pre><code> 里的代码
+        return {
+          'font-size': '13px',
+          'font-family': 'monospace',
+          'color': isDark ? '#E0E0E0' : '#212121',
+          'line-height': '1.5',
+          'white-space': 'pre',
+        };
+
+      // ——— 引用 ———
+      case 'blockquote':
+        return {
+          'border-left': isDark ? '4px solid #64B5F6' : '4px solid #2196F3',
+          'background-color':
+              isDark ? 'rgba(33,150,243,0.1)' : 'rgba(33,150,243,0.05)',
+          'padding': '8px 12px',
+          'margin': '8px 0',
+          'border-radius': '0 4px 4px 0',
+        };
+
+      // ——— 表格 ———
+      case 'table':
+        return {
+          'border-collapse': 'collapse',
+          'width': '100%',
+          'margin': '8px 0',
+          'font-size': '14px',
+        };
+      case 'th':
+        return {
+          'font-weight': 'bold',
+          'padding': '8px 10px',
+          'border':
+              '1px solid ${isDark ? "#424242" : "#E0E0E0"}',
+          'background-color': isDark ? '#2D2D3F' : '#F5F5F5',
+          'text-align': 'left',
+        };
+      case 'td':
+        return {
+          'padding': '8px 10px',
+          'border': '1px solid ${isDark ? "#424242" : "#E0E0E0"}',
+        };
+
+      // ——— 分割线 ———
+      case 'hr':
+        return {
+          'margin': '16px 0',
+          'border': 'none',
+          'border-top':
+              '1px solid ${isDark ? "#424242" : "#E0E0E0"}',
+        };
+
+      // ——— 列表 ———
+      case 'ul':
+        return {
+          'margin': '6px 0',
+          'padding-left': '20px',
+        };
+      case 'ol':
+        return {
+          'margin': '6px 0',
+          'padding-left': '20px',
+        };
+      case 'li':
+        return {
+          'margin': '3px 0',
+        };
+
+      // ——— 链接 ———
+      case 'a':
+        return {
+          'color': isDark ? '#64B5F6' : '#1565C0',
+          'text-decoration': 'none',
+        };
+
+      // ——— 图片 ———
+      case 'img':
+        // 如果是相对路径，拼接 OpenList 的原始地址
+        final src = element.attributes['src'];
+        if (src != null && !src.startsWith('http')) {
+          final basePath = widget.basePath ?? '';
+          element.attributes['src'] = '$basePath/$src';
+        }
+        return {
+          'max-width': '100%',
+          'border-radius': '4px',
+          'margin': '8px 0',
+        };
+
+      default:
+        return null;
+    }
   }
 
-  void _changeFontSize(int delta) {
-    // 字体大小调整（后续可加状态管理）
+  void _copyContent() {
+    // 复制到剪贴板（后续可扩展）
   }
 }
-
-// 辅助：Uint8List
-// ignore: non_constant_identifier_names
-Uint8List Uint8ListFromList(List<int> list) => Uint8List.fromList(list);
