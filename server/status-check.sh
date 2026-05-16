@@ -3,15 +3,41 @@
 # 服务健康检查 — status-server + OpenList API 一键检测
 #
 # 用法:
-#   ./server/status-check.sh
-#   ./server/status-check.sh --watch   每 10 秒轮询一次
-#   ./server/status-check.sh --json    输出 JSON 格式
+#   ./server/status-check.sh                              # 默认 localhost
+#   ./server/status-check.sh 192.168.21.32                # 指定 IP
+#   SERVER_HOST=192.168.21.32 ./server/status-check.sh    # 环境变量
+#   ./server/status-check.sh --watch [秒数] [HOST]
+#   ./server/status-check.sh --json [HOST]
 # ============================================================
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-STATUS_URL="http://192.168.21.32:3001"
-OPENLIST_URL="http://192.168.21.32:5244"
+# ── 解析参数 ──
+MODE=""
+INTERVAL=10
+HOST=""
+ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --watch|-w) MODE="watch" ;;
+    --json|-j)  MODE="json" ;;
+    --help|-h)  MODE="help" ;;
+    *)
+      # 数字 = interval（watch 模式），否则 = host
+      if [[ "$MODE" == "watch" && "$arg" =~ ^[0-9]+$ ]]; then
+        INTERVAL="$arg"
+      else
+        ARGS+=("$arg")
+      fi
+      ;;
+  esac
+done
+
+# 优先环境变量 SERVER_HOST，否则第一个非选项参数，否则默认
+HOST="${SERVER_HOST:-${ARGS[0]:-127.0.0.1}}"
+
+STATUS_URL="http://$HOST:3001"
+OPENLIST_URL="http://$HOST:5244"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -36,9 +62,9 @@ check_openlist() {
 }
 
 print_human() {
-  echo "======================================"
-  echo -e "  ${BOLD}CloudDoc-Viewer 服务健康检查${NC}"
-  echo "======================================"
+  echo "=========================================="
+  echo -e "  ${BOLD}服务健康检查 — $HOST${NC}"
+  echo "=========================================="
   echo ""
 
   # status-server
@@ -74,7 +100,7 @@ print_human() {
   }
 
   echo ""
-  echo "======================================"
+  echo "=========================================="
 }
 
 print_json() {
@@ -88,6 +114,7 @@ print_json() {
   python3 -c "
 import json, sys
 result = {
+  'host': '$HOST',
   'timestamp': $(date +%s),
   'services': {
     'status-server': {'online': $ss_ok, 'data': $ss_data},
@@ -98,34 +125,20 @@ json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
 "
 }
 
-cmd_default() {
-  print_human
-  # 返回码: 0=全部正常, 1=部分异常
-  check_status_server >/dev/null && check_openlist >/dev/null
-}
-
 cmd_watch() {
-  local interval="${1:-10}"
-  info "每 ${interval}s 轮询 — Ctrl+C 退出"
+  echo "每 ${INTERVAL}s 轮询 $HOST — Ctrl+C 退出"
   echo ""
   while true; do
     clear 2>/dev/null || true
     print_human
-    sleep "$interval"
+    sleep "$INTERVAL"
   done
 }
 
 # ── 主入口 ──
-main() {
-  local mode="${1:-}"
-  shift 2>/dev/null || true
-
-  case "$mode" in
-    --json|-j)           print_json ;;
-    --watch|-w)          cmd_watch "${1:-10}" ;;
-    --help|-h)           echo "用法: $0 [--json|--watch [秒数]]" ;;
-    *)                   cmd_default ;;
-  esac
-}
-
-main "$@"
+case "$MODE" in
+  json)  print_json ;;
+  watch) cmd_watch ;;
+  help)  echo "用法: $0 [--watch 秒数|--json] [HOST]"; echo "       SERVER_HOST=ip $0" ;;
+  *)     print_human ;;
+esac
