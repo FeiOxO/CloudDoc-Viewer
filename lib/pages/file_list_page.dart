@@ -177,7 +177,7 @@ class _FileListPageState extends State<FileListPage> {
         padding: EdgeInsets.symmetric(horizontal: 4),
         child: Icon(Icons.chevron_right, size: 14, color: Colors.grey),
       ));
-      final path = '/' + parts.sublist(0, i + 1).join('/');
+      final path = '/${parts.sublist(0, i + 1).join('/')}';
       crumbs.add(
         GestureDetector(
           onTap: () {
@@ -302,7 +302,7 @@ class _FileListPageState extends State<FileListPage> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: iconColor, size: 24),

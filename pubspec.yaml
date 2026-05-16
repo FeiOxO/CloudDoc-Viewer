@@ -34,13 +34,13 @@ dependencies:
   # Toast 提示
   fluttertoast: ^8.2.8
 
+  # UUID 生成
+  uuid: ^4.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  
-  # UUID 生成
-  uuid: ^4.4.0
 
 flutter:
   uses-material-design: true

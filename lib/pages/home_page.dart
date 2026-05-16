@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../models/server_config.dart';
 import '../models/server_status.dart';
+import '../services/server_manager.dart';
 import '../services/status_api.dart';
 import 'add_server_page.dart';
 import 'login_page.dart';
@@ -17,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ServerManager _manager = ServerManager();
   List<ServerConfig> _servers = [];
-  Map<String, ServerStatus> _statuses = {};
+  final Map<String, ServerStatus> _statuses = {};
   bool _loading = true;
 
   @override
@@ -190,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                   boxShadow: isOnline
                       ? [
                           BoxShadow(
-                            color: Colors.green.withOpacity(0.4),
+                            color: Colors.green.withValues(alpha: 0.4),
                             blurRadius: 6,
                           ),
                         ]
@@ -204,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.cloud, color: Colors.blue, size: 28),

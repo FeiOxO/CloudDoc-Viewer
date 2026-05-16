@@ -167,7 +167,7 @@ class _AddServerPageState extends State<AddServerPage> {
               decoration: _inputDec(
                 '密码',
                 null,
-                suffix: IconButton(
+                IconButton(
                   icon: Icon(
                     _showPassword ? Icons.visibility_off : Icons.visibility,
                   ),
@@ -233,7 +233,7 @@ class _AddServerPageState extends State<AddServerPage> {
     );
   }
 
-  InputDecoration _inputDec(String label, [String? hint, {Widget? suffix}]) {
+  InputDecoration _inputDec(String label, [String? hint, Widget? suffix]) {
     return InputDecoration(
       labelText: label,
       hintText: hint,

@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:flutter_highlight/themes/github.dart';
-import 'package:flutter_highlight/themes/dracula.dart';
 import '../services/alist_api.dart';
 
 /// Markdown 文件阅读器
@@ -36,8 +34,6 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = _darkMode ? draculaTheme : githubTheme;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -112,7 +108,7 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
             code: TextStyle(
               fontSize: 13,
               backgroundColor: _darkMode
-                  ? Colors.white.withOpacity(0.1)
+                  ? Colors.white.withValues(alpha: 0.1)
                   : Colors.grey[200],
               color: _darkMode ? Colors.green[200] : Colors.deepOrange,
             ),
@@ -123,15 +119,15 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
               borderRadius: BorderRadius.circular(8),
             ),
             blockquoteDecoration: BoxDecoration(
-              border: Border(
+              border: const Border(
                 left: BorderSide(
                   color: Colors.blue,
                   width: 4,
                 ),
               ),
               color: _darkMode
-                  ? Colors.blue.withOpacity(0.1)
-                  : Colors.blue.withOpacity(0.05),
+                  ? Colors.blue.withValues(alpha: 0.1)
+                  : Colors.blue.withValues(alpha: 0.05),
             ),
             listBullet: TextStyle(
               color: _darkMode ? Colors.white : Colors.black87,
@@ -147,8 +143,8 @@ class _MarkdownViewerPageState extends State<MarkdownViewerPage> {
           ),
           padding: const EdgeInsets.all(16),
           // 支持图片加载
-          imageBuilder: (uri, title, alt) {
-            final src = uri.toString();
+          sizedImageBuilder: (config) {
+            final src = config.uri.toString();
             // 如果是相对路径，拼接 basePath
             final fullPath = src.startsWith('http')
                 ? src

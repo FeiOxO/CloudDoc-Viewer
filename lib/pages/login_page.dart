@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/server_config.dart';
 import '../services/alist_api.dart';
 import '../services/server_manager.dart';
-import 'file_list_page.dart';
 import 'server_detail_page.dart';
 
 /// 服务器登录页
@@ -83,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Icon(Icons.cloud, size: 48, color: Colors.blue),
