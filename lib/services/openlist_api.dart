@@ -90,23 +90,16 @@ class OpenListApi {
     if (_server == null || _token == null) throw Exception('未登录');
 
     try {
-      final url = Uri.parse('${_server!.baseUrl}/api/fs/get');
+      final url = Uri.parse(getRawUrl(path));
       final response = await http
-          .post(
+          .get(
             url,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': _token!,
-            },
-            body: jsonEncode({'path': path}),
+            headers: {'Authorization': _token!},
           )
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['code'] == 200) {
-          return data['data'] as String;
-        }
+        return response.body;
       }
       throw Exception('获取文件内容失败');
     } catch (e) {
