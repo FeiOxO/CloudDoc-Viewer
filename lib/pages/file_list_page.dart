@@ -59,9 +59,15 @@ class _FileListPageState extends State<FileListPage> {
     }
   }
 
+  String _joinPath(String name) {
+    if (_currentPath == '/') return '/$name';
+    return '$_currentPath/$name';
+  }
+
   void _enterDir(FileEntry entry) {
-    _pathHistory.add(entry.path);
-    _loadFiles(entry.path);
+    final dirPath = _joinPath(entry.name);
+    _pathHistory.add(dirPath);
+    _loadFiles(dirPath);
   }
 
   void _goBack() {
@@ -74,7 +80,7 @@ class _FileListPageState extends State<FileListPage> {
   void _openFile(FileEntry entry) async {
     if (entry.isMarkdown) {
       try {
-        final content = await widget.openListApi.getFileContent(entry.path);
+        final content = await widget.openListApi.getFileContent(_joinPath(entry.name));
         if (mounted) {
           Navigator.push(
             context,
